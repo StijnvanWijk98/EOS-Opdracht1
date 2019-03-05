@@ -1,0 +1,177 @@
+handige info
+
+COMMANDS
+Als je een nieuwe terminal start, heeft je shell standaard een working directory:
+het punt op het filesysteem waar je je bevindt. Bestanden die je maakt worden
+in deze map gezet, en bestanden die je zoekt kunnen relatief vanaf deze map
+benaderd worden. Standaard zul je beginnen in je home directory, de map die je
+als gebruiker zelf beheert en waar je eigen bestanden (en instellingen) te vinden
+zijn. Het commando cd (change directory) wordt gebruikt om van map te
+wisselen, en pwd (present working directory) vertelt waar je je nu bevindt. Met
+ls (list) kun je de inhoud van de huidige map te zien krijgen. Een aantal paden
+zijn belangrijk om te weten: de bovenste directory, de root directory, wordt
+met een / (slash) aangeduid. Vanaf hier worden directory-namen door een /
+gescheiden om een pad uit te drukken. De home directory van de gebruiker
+jon bevindt zich bijvoorbeeld op /home/jon (de map jon , binnen de map home ,
+binnen de root). ~ wordt gebruikt als synoniem voor de home directory van de
+huidige gebruiker. Voor Jon is cd ~ dus hetzelfde als cd /home/jon . . verwijst
+naar de huidige map: cd . doet niets. Dit kan voor nu een beetje overbodig
+lijken, maar later zullen we zien hoe de . soms korter is dan de alternatieven.
+Daarnaast hebben we .. , die naar de parent van de huidige directory verwijst.
+Vanaf Jon’s home zal cd .. dus naar /home verwijzen. Deze kun je ook middenin
+een pad gebruiken, de map omhoog wordt dan gerekend vanaf waar in het
+pad deze wordt gebruikt. cd /home/jon/Documents/../Music is bijvoorbeeld
+hetzelfde als cd /home/jon/Music . cd zonder argument gaat terug naar de home
+directory, en cd - gaat terug naar de vorige directory.
+
+MANIPULEREN BESTANDEN
+De volgende commando’s manupileren bestanden. Met touch wordt een
+bestand aangemaakt (als deze nog niet bestond) of wordt de “laatst aangepast”
+datum naar nu gezet. Het bestand wordt gewijzigd, maar er verandert niets
+aan. Met cp kun je een bestand kopiëren, en met mv kun je het verplaatsen. rm
+verwijdert een bestand.
+
+De meeste commando’s voor bestanden werken niet direct op directories.
+mv mag, maar cp en rm werken niet. Voor het verwijderen van een lege map
+wordt rmdir gebruikt, maar dit mag niet als er een bestand in de map zit. Dit
+is omdat Linux je wil beschermen geen verkeerde handeling uit te voeren: als je
+aangeeft dat je een bestand wil verwijderen, maar je geeft een map op, dan is
+de kans groot dat je de verkeerde naam hebt meegegeven. Als je toch een map
+(met alle inhoud) wilt kopiëren of verwijderen, kun je cp -r en rm -r gebruiken.
+De toevoeging -r staat voor recursief (dat betekent in dit geval: met alles wat
+eronder hangt). Gebruik bijvoorbeeld rm -r Music als je de map Music met
+alle inhoud wil verwijderen. -r is het eerste voorbeeld van een flag.
+
+FLAGS/ ARGUMENTS FOR COMMANDS
+De meeste commando’s accepteren command line argumenten. Allereerst zijn
+er verplichte argumenten. Waar pwd bijvoorbeeld geen argumenten nodig heeft,
+heeft touch enkel zin als meegegeven wordt welk bestand gemaakt of geüpdatet
+moet worden. cp heeft zelfs twee argumenten nodig: een bron en een doel.
+Soms kan een commando een optioneel pad meekrijgen: ls werkt in de huidige
+working directory, ls /home leest de inhoud van /home . Al deze argumenten
+zijn positie-bepaald. Het eerste argument bij cp is altijd de bron, de tweede
+het doel. Naast deze positiegebonden argumenten hebben we ook flags, die
+met één of twee streepjes (dashes) kunnen beginnen. Flags komen doorgaans
+overeen met booleaanse waardes: wel of niet. Als de flag met één dash begint,
+dan is het doorgaans een enkele letter, en kun je deze combineren. -r -f is
+hetzelfde als -rf ; het maakt niet uit of je rm -r -f Music gebruikt of het kortere
+rm -rf Music . Ook de volgorde maakt meestal niet uit. Flags met een dubbele
+dash bestaan uit meerdere letters en zijn niet samen te voegen. Tot slot kunnen
+deze flags soms een argument erbij nemen. Bij enkele letters volgt het argument
+meestal na een (optionele) spatie, bij de dubbele dash wordt meestal een =
+gebruikt om de waarde van de flag te scheiden.
+
+UITLEG
+Sommige commando’s hebben erg veel opties om de gewenste functionaliteit
+te selecteren. De meeste commando’s hebben een -h en/of --help optie om
+wat tips te geven over het gebruik. Voor het hele verhaal kun je man gebruiken,
+oftewel de manual.
+
+PIPES
+Om een tree te krijgen van de inhoud van een map en alle submappen kun je
+het commando find gebruiken. Dit geeft echter vrij veel uitvoer, het zou fijn
+zijn als we hier hapklare brokken van konden maken. Het commando less kan
+gebruikt worden om een bestand te openen en er doorheen te kunnen scrollen.
+Kunnen we dit gebruiken om de uitvoer van find te pagineren? In Linux kun je
+twee commando’s aan elkaar koppelen: uitvoer van het ene programma wordt
+als invoer voor het tweede gebruikt. Hiervoor gebruiken we het | symbool: de
+pipe. Denk aan een pijpleiding die de commando’s met elkaar verbindt.
+
+SYS_pipe
+Pipes zijn een fundamenteel onderdeel van de Unix filosofie om eenvoudige
+programma’s te combineren voor complex gedrag. De pipe is dermate belangrijk
+dat hiervoor een speciale system call bestaat: SYS_pipe . Hieronder zien we de
+stappen die de shell doorloopt bij het uitvoeren van een find | less .
+1. Shell maakt een pipe met pipe()
+2. Shell fork t twee keer
+3. Child 1 stuurt uitvoer naar pipe
+4. Child 2 leest invoer uit pipe
+5. Child 1 roept exec() aan met find
+6. Child 2 roept exec() aan met less
+7. Parent wacht tot beide children exiten
+
+STDIN en STDOUT
+Het sturen van de uitvoer noemen we het redirecten van STDOUT (standard
+out), en het lezen van de invoer is het redirecten van STDIN (standard in). Dit
+hoeft niet met een pipe te gebeuren, maar kan ook van/naar een bestand.
+STDOUT is een file descriptor (nummer 1) die in ieder proces aanwezig is, en die
+gebruikt wordt om alles naartoe te schrijven dat het programma uitvoert (denk
+aan print s). STDIN is ook een file descriptor (nummer 0), maar deze wordt
+gelezen voor invoer. Normaal is dit de gebruikersinvoer vanaf de command line,
+maar dit kan ook prima een bestand of pipe zijn. Daarnaast is er vaak een
+derde file descriptor, STDERR (standard error, nummer 2), voor foutmeldingen
+(ook dit is standaard de command line, maar het is hiermee dus mogelijk te
+splitsen tussen uitvoer en excepties). Het gebruik van file descriptors voor
+de invoer/uitvoer is weer een voorbeeld van de UNIX-filosofie dat alles een
+bestand is. Een descriptor is de datastructuur die UNIX intern gebruikt om
+iets te kunnen benaderen; een file descriptor verwijst dus naar een bestand (en
+hoe dit gelezen/geschreven kan worden). Waar STDIN en STDOUT precies aan
+verbonden zijn, is te vinden in de environment informatie die bij een proces
+hoort. Standaard zijn dit voor processen die je in de shell start de invoer en de
+uitvoer van de terminal, en als je een child process start worden deze overgeërfd.
+Tijdens executie van het proces kunnen deze descriptors altijd ergens anders
+aan verbonden worden, maar de STDIN en STDOUT moeten altijd ergens naar
+verwijzen. Bij processen die door de kernel gestart worden, zoals init is de
+STDOUT doorgaans aan het kernel log gekoppeld. STDIN kan aan een buffer of (als
+het proces geen input verwacht) aan een dummy file gekoppeld zijn: een lege
+file descriptor die niet aan een daadwerkelijk bestand op de schijf gekoppeld is.
+
+IO Redirection
+Net als dat we vanaf de shell twee commando’s aan elkaar kunnen pipen,
+kunnen we ook een file descriptor meegeven om als STDIN , STDOUT of STDERR
+te gebruiken. Dit kan respectievelijk met < , > en 2> . Je kunt bijvoorbeeld
+find /home/jon > filetree gebruiken om de uitvoer van find /home/jon in
+het bestand filetree te schrijven. Bij find /home/jon 2> errors.log wordt
+niet de uitvoer verbonden, maar eventuele foutmeldingen via STDERR . Als het
+bestand waarnaar je wilt uitvoeren al bestaat, wordt het als je > gebruikt
+overschreven, maar je kunt, >> en 2>> gebruiken om in plaats daarvan achteraan
+het bestand toe te voegen. Tot slot kun je << MARKER of <<- MARKER (een
+zogenaamde “heredoc”) gebruiken om STDIN vanaf de command line mee te
+geven, tot aan de eerste regel met enkel MARKER . Dit maakt het makkelijk
+meerdere regels tekst mee te geven. De toegevoegde waarde van de - is dat
+deze een tab aan het begin van een regel negeert en mogelijk leesbaarder is. Op
+zichzelf wordt < niet zo veel gebruikt, omdat de meeste programma’s standaard
+een meegegeven bestandsnaam als STDIN interpreteren (dus less < file is
+hetzelfde als less file ), maar bij sommige programma’s kan dit nodig zijn.
+Een voorbeeld is psql , een database waarbij je een bestand met instructies mee
+kan geven met psql databasename < sqlfile . Als je < niet gebruikt en vanaf
+de command line invoert kun je Control-d gebruiken om je invoer te beëindigen,
+in plaats van de explicete MARKER die je bij << gebruikt. wc staat trouwens voor
+word count, waarbij wc -l het aantal regels telt, en wc -c het aantal karakters.
+
+Hier zien we hoe redirection er vanuit het shell proces uit ziet. Als voorbeeld
+gebruiken we het commando command a1 a2 < in_file > out_file 2> /dev/
+null : /dev/null is een speciaal virtueel device, waar altijd naar geschreven kan
+worden. /dev/null gedraagt zich als een zwart gat: alles dat ernaar geschreven
+wordt verdwijnt. In dit geval onderdrukken we dus error messages door alle
+STDERR uitvoer naar de prullenbak te verwijzen. Zowel < in_file als > out_file
+en 2> /dev/null hebben invloed op het commando command a1 a2 , en worden
+niet onderling met elkaar verbonden anders dan via het command a1 a2 -proces.
+Merk op dat bestanden in Linux lang niet altijd een extensie hebben (zoals
+.txt of .doc ). Linux bepaalt aan de hand van de inhoud met wat voor type
+bestand het te maken heeft. In dit geval zijn in_file en out_file waarschijnlijk
+tekstbestanden.
+1. De shell forkt
+2. Child sluit STDIN en opent in_file als STDIN
+3. Child sluit STDOUT en opent out_file als STDOUT
+4. Child sluit STDERR , opent /dev/null als STDERR
+5. Child roept exec() aan met command en geeft a1 a2 als argumenten mee
+6. Parent wacht tot het kind exit
+
+PIPELINE
+Meerdere commands gescheiden door pipes vormen samen een pipeline. De
+commando’s worden parallel uitgevoerd. Je kunt ook meerdere commands na
+elkaar uit laten voeren, dit kan met de puntkomma en wordt een command-list
+genoemd. Het is zelfs mogelijk meerdere pipelines in een command list te
+zetten.
+Commands in een command list worden na elkaar uitgevoerd, ongeacht of
+er ergens iets mis gaat. Soms wil je het tweede command enkel uitvoeren als
+het eerste command geslaagd is, of juist alleen als er een fout is geweest. Zoals
+we weten heeft ieder command een exit status, 0 voor succes of iets anders
+voor een fout. Door && tussen commands te zetten, in plaats van ; wordt het
+tweede commando alleen uitgevoerd als het eerste geslaagd is. De dubbele pipe
+|| werkt precies andersom: het tweede command wordt alleen uitgevoerd als
+de eerste mislukte. We noemen deze operators en en of. “Doe a en b” kan
+alleen maar als a gelukt is, zo niet zal de shell het meteen opgeven. “Doe a of
+b” levert de shell een alternatief, probeer eerst a, en als dat niet lukt, doe dan
+b. ::: end study
