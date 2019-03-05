@@ -9,20 +9,20 @@ using std::string;
 
 int main(){
 	string input;
-	//Onderstaande code is om het prompt uit het prompt.txt file te lezen
-	int fdprompt = open("prompt.txt",O_RDONLY); // file decriptor met syscall open om prompt.txt te openen in readonly
-	if(fdprompt < 0){ //als er een error is dan is fdprompt -1
-		perror("c1"); // geeft de error code in STDERR
-		exit(1); // sluit functie
+	//HIER WERK IK MET DE SYSCALL
+	int fdprompt = syscall(SYS_open,"prompt.txt",O_RDONLY); 	//file decriptor met syscall open om prompt.txt te openen in readonly
+	if(fdprompt < 0){ 						//als er een error is dan is fdprompt -1
+		perror("c1"); 						//geeft de error code in STDERR
+		exit(1); 						//sluit functie
 	}
 	printf("Opened fileprompt = %d\n", fdprompt);
 
-	char *pointerbuffer = (char *) malloc(100); //pointer naar geheugenlocatie voor de buffer van prompt allokeerd memory
-	int szprompt = read(fdprompt, pointerbuffer,18); //read de file met een 18byte grootte die we in de buffer zetten
-	pointerbuffer[szprompt] = '\0'; //zorgt dat we de bytes kunnen lezen???
+	char *pointerbuffer = (char *) malloc(100); 			//pointer naar geheugenlocatie voor de buffer van prompt allokeerd memory
+	int szprompt = syscall(SYS_read,fdprompt, pointerbuffer,18); 	//read de file met een 18byte grootte die we in de buffer zetten
+	pointerbuffer[szprompt] = '\0'; 				//zorgt dat we de bytes kunnen lezen???
 
 
-	if(close(fdprompt) < 0){ //voor een foutmelding bij het closen van prompt.txt
+	if(syscall(SYS_close,fdprompt) < 0){ 					//voor een foutmelding bij het closen van prompt.txt
 		perror("close prompt");
 		exit(1);
 	}
