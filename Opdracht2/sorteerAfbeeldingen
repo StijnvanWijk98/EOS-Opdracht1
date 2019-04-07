@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+pad=$1 #meegegeven variabele wordt de path waar we naartoe willen
+cd $pad #gaan naar het gegeven path
+declare -a file_types_to_move=("*.jpg" "*.png")
+
+echo "Ik zit in de volgende directory:"
+pwd #ter controle
+
+#controleert of de Afbeeldingen al bestaat, zo niet dan maakt die hem
+if test -d Afbeeldingen; then
+	echo "De afbeeldingen directory bestaat al"
+else
+	mkdir Afbeeldingen
+fi
+
+#
+for filetype in ${file_types_to_move[@]}
+do
+	echo $filetype
+	find -maxdepth 1 -name $filetype -exec mv {} Afbeeldingen/{} \;
+done
+
+echo "Ik ben klaar"
+
+

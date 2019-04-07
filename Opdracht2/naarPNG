@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+pad=$1
+cd $pad
+
+array=$(find -maxdepth 1 -name "*.jpg")
+
+for string in $array; do
+	string=${string:2}
+	echo $string
+	string_new=${string//jpg/png}
+	echo $string_new
+	convert $string -resize 128x128 $string_new
+done
+

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+echo "Tijd om de gitmappen te resetten"
+cd ~/Desktop
+pwd
+rm -rf EOSfiles
+echo "Tijd om een nieuwe direc te maken"
+
+mkdir EOSfiles
+cd EOSfiles
+echo "voor tweede pwd"
+pwd
+
+echo "tijd om git te init en te clonen"
+git init
+git clone https://github.com/Peikos/V1EOS-practica.git EOS
+echo "Zo we zijn klaar, de map is gereset"

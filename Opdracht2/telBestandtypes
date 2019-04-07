@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+number_arguments=$#
+counterFile1=0
+counterFile2=0
+counterFile3=0
+counterFile4=0
+
+echo "DEBUG: aantal gegeven arguments:"
+echo $number_arguments
+
+if [ $number_arguments -lt 1 ]; then
+	echo "Geef alsjeblieft een path en een bestandtype mee"
+	exit 1 #verlaat het script
+elif [ $number_arguments -eq 1 ]; then
+	echo "Geef alsjeblieft een of meerdere bestandtypes mee"
+	exit 1 #verlaat het script
+elif [ $number_arguments  -gt 5 ]; then
+	echo "Geef alsjeblieft niet meer dan 4 datatypes mee"
+	exit 1 #verlaat het script
+else
+	#Het eerste argument dat is meegeven is het pad waar we zoeken
+	pad=$1
+	files_to_scan=$(find $pad -type f -maxdepth 1)
+fi
+#zorgt ervoor dat we naar de juiste map gaan waar we willen zoeken
+cd $pad
+echo "DEBUG: ik ben op de volgende locatie:"
+pwd
+
+for file in $files_to_scan; do
+	case $file in
+	 *$2)
+	 #file deels gelijk aan argument 2
+	 ((counterFile1+=1))
+	 ;;
+	 *$3)
+	 ((counterFile2+=1))
+	 ;;
+	 *$4)
+	 ((counterFile3+=1))
+	 ;;
+	 *$5)
+	 ((counterFile4+=1))
+	 ;;
+	esac
+done
+
+echo "counter filetype:" $2 " = " $counterFile1
+echo "counter filetype:" $3 " = " $counterFile2
+echo "counter filetype:" $4 " = " $counterFile3
+echo "counter filetype:" $5 " = " $counterFile4
+echo "Ik ben klaar"

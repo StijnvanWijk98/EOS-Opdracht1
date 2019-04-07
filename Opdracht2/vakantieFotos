@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+pad=$1 #De meegegeven variabele is het path waar de afbeeldingen staan
+cd $pad #gaan naar het gegeven pad
+declare -a file_types_to_move=("*.jpg" "*.png")
+
+echo "Ik zit in deze directory:"
+pwd
+
+if test -d Vakantie; then
+	echo "De vakantie directory bestaat al."
+else
+	mkdir Vakantie
+fi
+
+for filetype in ${file_types_to_move[@]}
+do
+	echo $filetype
+	find -name $filetype | grep vakantie | xargs -I{} mv {} Vakantie
+done
+
+echo "Ik ben klaar" 

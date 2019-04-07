@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+echo "Give a name"
+read userinput
+
+if [$userinput -eq '']; then
+	username=$(whoami)
+else
+	username=$userinput
+fi
+
+echo "username = " $username

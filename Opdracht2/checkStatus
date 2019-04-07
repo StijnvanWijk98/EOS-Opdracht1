@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# maakt een array met alle bestanden in het gegeven path
+
+case $# in
+ 1)
+ echo "geef minimaal een path en een command mee"
+ exit 1
+ ;;
+ 2)
+ pad=$1
+ command=$2
+ ;;
+ 3)
+ pad=$1
+ command=($2+$3)
+ ;;
+ 4)
+ pad=$1
+ command=($2+$3+$4)
+ ;;
+ *)
+ echo "Geef alsjeblieft tussen de 1-3 argumenten mee naast het path."
+ exit 1
+ ;;
+esac
+files_in_direc=$(find $pad -maxdepth 1 -type f -printf ' %f\n')
+
+#Het logbestand staat in ~/bin
+cd ~/bin
+if test -f logbestand.txt; then
+	echo "logbestand bestaat al"
+else
+	touch logbestand.txt
+fi
+>logbestand.txt #maakt logbestand leeg
+
+echo "command = " $command
+cd /
+cd $pad #naar de juiste map
+echo "path = "
+pwd
+for file in $files_in_direc; do
+	echo "file = " $file
+	if "$command" "$file"; then
+		echo "$file: geslaagd" >> ~/bin/logbestand.txt
+	else
+		echo "$file: gefaald" >> ~/bin/logbestand.txt
+	fi
+done
